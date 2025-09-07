@@ -1,9 +1,12 @@
 import { Head, useForm, router, Link } from '@inertiajs/react';
 import AppLayout from '../../Layouts/AppLayout';
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 export default function Students({ students, universities, flash, user }) {
     const [showAddForm, setShowAddForm] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedStudent, setSelectedStudent] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     const { data: addData, setData: setAddData, post, processing: addProcessing, errors: addErrors, reset: addReset } = useForm({
@@ -29,14 +32,45 @@ export default function Students({ students, universities, flash, user }) {
         documents: []
     });
 
-    // تصفية الطلاب حسب البحث
-    const filteredStudents = students?.filter(student => {
+    // نموذج التعديل
+    const { data: editData, setData: setEditData, put, processing: editProcessing, errors: editErrors, reset: editReset } = useForm({
+        name: '',
+        department: '',
+        stage: 'بكالوريوس',
+        gpa: '',
+        university_id: '',
+        date: '',
+        mobile: '',
+        code: '',
+        profile_image: null,
+        installment_total: 0,
+        installment_received: 0,
+        installment_remaining: 0,
+        fees_total: 0,
+        fees_received: 0,
+        fees_remaining: 0,
+        sender_agent: '',
+        sender_agent_fees: 0,
+        receiver_agent: '',
+        receiver_agent_fees: 0,
+        documents: []
+    });
+
+    // نموذج الحذف
+    const { delete: deleteStudent, processing: deleteProcessing } = useForm();
+
+    // تصفية الطلاب حسب البحث باستخدام useMemo للأداء
+    const filteredStudents = useMemo(() => {
+        if (!searchTerm.trim()) return students || [];
+
         const searchLower = searchTerm.toLowerCase();
-        return student.name?.toLowerCase().includes(searchLower) ||
-               student.code?.toLowerCase().includes(searchLower) ||
-               student.department?.toLowerCase().includes(searchLower) ||
-               student.mobile?.includes(searchTerm);
-    }) || [];
+        return students?.filter(student => {
+            return student.name?.toLowerCase().includes(searchLower) ||
+                   student.code?.toLowerCase().includes(searchLower) ||
+                   student.department?.toLowerCase().includes(searchLower) ||
+                   student.mobile?.includes(searchTerm);
+        }) || [];
+    }, [students, searchTerm]);
 
     const handleAddSubmit = (e) => {
         e.preventDefault();
@@ -60,6 +94,104 @@ export default function Students({ students, universities, flash, user }) {
             onSuccess: () => {
                 setShowAddForm(false);
                 addReset();
+            }
+        });
+    };
+
+    const handleEdit = (student) => {
+        setSelectedStudent(student);
+        // تحويل التاريخ إلى التنسيق المطلوب yyyy-MM-dd
+        const formattedDate = student.date ? student.date.split('T')[0] : '';
+        setEditData({
+            name: student.name,
+            department: student.department,
+            stage: student.stage,
+            gpa: student.gpa || '',
+            university_id: student.university_id,
+            date: formattedDate,
+            mobile: student.mobile,
+            code: student.code,
+            profile_image: null,
+            installment_total: student.installment_total,
+            installment_received: student.installment_received,
+            installment_remaining: student.installment_remaining,
+            fees_total: student.fees_total,
+            fees_received: student.fees_received,
+            fees_remaining: student.fees_remaining,
+            sender_agent: student.sender_agent || '',
+            sender_agent_fees: student.sender_agent_fees,
+            receiver_agent: student.receiver_agent || '',
+            receiver_agent_fees: student.receiver_agent_fees,
+            documents: []
+        });
+        setShowEditModal(true);
+    };
+
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+
+        // إذا لم تكن هناك ملفات جديدة، استخدم طريقة أسرع
+        if (!editData.profile_image && (!editData.documents || editData.documents.length === 0)) {
+            // إرسال البيانات النصية فقط (أسرع)
+            const dataToSend = { ...editData };
+            delete dataToSend.profile_image;
+            delete dataToSend.documents;
+
+            put(`/admin/students/${selectedStudent.id}`, dataToSend, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setShowEditModal(false);
+                    editReset();
+                    setSelectedStudent(null);
+                },
+                onError: (errors) => {
+                    console.log('Validation errors:', errors);
+                    alert('حدث خطأ في التحديث: ' + Object.values(errors).join(', '));
+                }
+            });
+        } else {
+            // استخدام FormData فقط عند وجود ملفات
+            const formData = new FormData();
+
+            Object.keys(editData).forEach(key => {
+                if (key === 'documents' && editData[key]?.length > 0) {
+                    editData[key].forEach((file, index) => {
+                        formData.append(`documents[${index}]`, file);
+                    });
+                } else if (key === 'profile_image' && editData[key]) {
+                    formData.append('profile_image', editData[key]);
+                } else if (key !== 'documents' && key !== 'profile_image') {
+                    formData.append(key, editData[key] || '');
+                }
+            });
+
+            formData.append('_method', 'PUT');
+
+            router.post(`/admin/students/${selectedStudent.id}`, formData, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setShowEditModal(false);
+                    editReset();
+                    setSelectedStudent(null);
+                },
+                onError: (errors) => {
+                    console.log('Validation errors:', errors);
+                    alert('حدث خطأ في التحديث: ' + Object.values(errors).join(', '));
+                }
+            });
+        }
+    };
+
+    const handleDelete = (student) => {
+        setSelectedStudent(student);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
+        deleteStudent(`/admin/students/${selectedStudent.id}`, {
+            onSuccess: () => {
+                setShowDeleteModal(false);
+                setSelectedStudent(null);
             }
         });
     };
@@ -244,16 +376,38 @@ export default function Students({ students, universities, flash, user }) {
                                                         </span>
                                                     </td>
                                                     <td className="px-4 py-3 text-center">
-                                                        <Link
-                                                            href={`/admin/students/${student.id}/profile`}
-                                                            className="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors duration-200"
-                                                        >
-                                                            <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                            </svg>
-                                                            التفاصيل
-                                                        </Link>
+                                                        <div className="flex justify-center space-x-2 space-x-reverse">
+                                                            <Link
+                                                                href={`/admin/students/${student.id}/profile`}
+                                                                className="inline-flex items-center px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors duration-200"
+                                                            >
+                                                                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                                </svg>
+                                                                التفاصيل
+                                                            </Link>
+
+                                                            <button
+                                                                onClick={() => handleEdit(student)}
+                                                                className="inline-flex items-center px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition-colors duration-200"
+                                                            >
+                                                                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                </svg>
+                                                                تعديل
+                                                            </button>
+
+                                                            <button
+                                                                onClick={() => handleDelete(student)}
+                                                                className="inline-flex items-center px-2 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors duration-200"
+                                                            >
+                                                                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                </svg>
+                                                                حذف
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             );
@@ -606,6 +760,325 @@ export default function Students({ students, universities, flash, user }) {
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {showEditModal && selectedStudent && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                    <div className="relative py-8 mx-auto px-4 w-full max-w-7xl">
+                        <div className="bg-white shadow-xl rounded-lg">
+                            <div className="px-6 py-4 border-b border-gray-200">
+                                <h3 className="text-xl font-bold text-gray-900 text-center">
+                                    تعديل بيانات الطالب - {selectedStudent.name}
+                                </h3>
+                            </div>
+
+                            <form onSubmit={handleEditSubmit} className="max-h-[calc(100vh-200px)] overflow-y-auto">
+                                <div className="p-6 space-y-6">
+                                    {/* البيانات الأساسية */}
+                                    <div>
+                                        <div className="bg-gray-100 border border-gray-300 px-4 py-2 mb-4">
+                                            <h4 className="font-bold text-gray-800">البيانات الأساسية</h4>
+                                        </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">اسم الطالب *</label>
+                                            <input
+                                                type="text"
+                                                value={editData.name}
+                                                onChange={(e) => setEditData('name', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">الكود *</label>
+                                            <input
+                                                type="text"
+                                                value={editData.code}
+                                                onChange={(e) => setEditData('code', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">رقم الموبايل *</label>
+                                            <input
+                                                type="text"
+                                                value={editData.mobile}
+                                                onChange={(e) => setEditData('mobile', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">القسم *</label>
+                                            <input
+                                                type="text"
+                                                value={editData.department}
+                                                onChange={(e) => setEditData('department', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">المرحلة *</label>
+                                            <select
+                                                value={editData.stage}
+                                                onChange={(e) => setEditData('stage', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                                required
+                                            >
+                                                <option value="بكالوريوس">بكالوريوس</option>
+                                                <option value="ماجستير">ماجستير</option>
+                                                <option value="دكتوراه">دكتوراه</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">الجامعة *</label>
+                                            <select
+                                                value={editData.university_id}
+                                                onChange={(e) => setEditData('university_id', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                                required
+                                            >
+                                                <option value="">اختر الجامعة</option>
+                                                {universities.map(university => (
+                                                    <option key={university.id} value={university.id}>
+                                                        {university.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">المعدل</label>
+                                            <input
+                                                type="number"
+                                                step="0.1"
+                                                value={editData.gpa}
+                                                onChange={(e) => setEditData('gpa', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">التاريخ</label>
+                                            <input
+                                                type="date"
+                                                value={editData.date}
+                                                onChange={(e) => setEditData('date', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">الصورة الشخصية</label>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => setEditData('profile_image', e.target.files[0])}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* القسط */}
+                                <div className="mb-6">
+                                    <div className="bg-gray-100 border border-gray-300 px-4 py-2 mb-4">
+                                        <h4 className="font-bold text-gray-800">القسط</h4>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">القسط</label>
+                                            <input
+                                                type="number"
+                                                value={editData.installment_total}
+                                                onChange={(e) => setEditData('installment_total', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">واصل القسط</label>
+                                            <input
+                                                type="number"
+                                                value={editData.installment_received}
+                                                onChange={(e) => setEditData('installment_received', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">باقي القسط</label>
+                                            <input
+                                                type="number"
+                                                value={editData.installment_remaining}
+                                                onChange={(e) => setEditData('installment_remaining', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* الأجور */}
+                                <div className="mb-6">
+                                    <div className="bg-gray-100 border border-gray-300 px-4 py-2 mb-4">
+                                        <h4 className="font-bold text-gray-800">الأجور</h4>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">الأجور</label>
+                                            <input
+                                                type="number"
+                                                value={editData.fees_total}
+                                                onChange={(e) => setEditData('fees_total', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">واصل الأجور</label>
+                                            <input
+                                                type="number"
+                                                value={editData.fees_received}
+                                                onChange={(e) => setEditData('fees_received', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">باقي الأجور</label>
+                                            <input
+                                                type="number"
+                                                value={editData.fees_remaining}
+                                                onChange={(e) => setEditData('fees_remaining', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* المعقبين */}
+                                <div className="mb-6">
+                                    <div className="bg-gray-100 border border-gray-300 px-4 py-2 mb-4">
+                                        <h4 className="font-bold text-gray-800">بيانات المعقبين</h4>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">المعقب المرسل</label>
+                                            <input
+                                                type="text"
+                                                value={editData.sender_agent}
+                                                onChange={(e) => setEditData('sender_agent', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">أجور المعقب المرسل</label>
+                                            <input
+                                                type="number"
+                                                value={editData.sender_agent_fees}
+                                                onChange={(e) => setEditData('sender_agent_fees', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">المعقب المستلم</label>
+                                            <input
+                                                type="text"
+                                                value={editData.receiver_agent}
+                                                onChange={(e) => setEditData('receiver_agent', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">أجور المعقب المستلم</label>
+                                            <input
+                                                type="number"
+                                                value={editData.receiver_agent_fees}
+                                                onChange={(e) => setEditData('receiver_agent_fees', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3 justify-center pt-6 border-t border-gray-200 bg-gray-50 px-6 py-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowEditModal(false);
+                                            setSelectedStudent(null);
+                                            editReset();
+                                        }}
+                                        className="px-6 py-2 border border-gray-400 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                                    >
+                                        إلغاء
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={editProcessing}
+                                        className="flex items-center justify-center px-6 py-2 bg-green-600 text-white border border-green-600 hover:bg-green-700 disabled:opacity-50 rounded-md transition-colors"
+                                    >
+                                        {editProcessing && (
+                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        )}
+                                        {editProcessing ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+                                    </button>
+                                </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Modal */}
+            {showDeleteModal && selectedStudent && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg bg-white">
+                        <div className="mt-3 text-center">
+                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 mt-4 mb-2">
+                                تأكيد حذف الطالب
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-4">
+                                هل أنت متأكد من رغبتك في حذف الطالب <strong>{selectedStudent.name}</strong>؟
+                                <br />
+                                هذا الإجراء لا يمكن التراجع عنه.
+                            </p>
+                            <div className="flex gap-3 justify-center">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowDeleteModal(false);
+                                        setSelectedStudent(null);
+                                    }}
+                                    className="px-4 py-2 border border-gray-400 text-gray-700 hover:bg-gray-100"
+                                >
+                                    إلغاء
+                                </button>
+                                <button
+                                    onClick={confirmDelete}
+                                    disabled={deleteProcessing}
+                                    className="px-4 py-2 bg-red-600 text-white border border-red-600 hover:bg-red-700 disabled:opacity-50"
+                                >
+                                    {deleteProcessing ? 'جاري الحذف...' : 'حذف'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

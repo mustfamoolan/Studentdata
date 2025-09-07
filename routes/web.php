@@ -64,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/students', [StudentController::class, 'store'])->name('students.store');
     Route::put('/admin/students/{student}', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/admin/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+    Route::post('/admin/students/{student}/pdf-export', [StudentController::class, 'generateCompletePDF'])->name('students.pdf.export');
     Route::delete('/admin/students/documents/{document}', [StudentController::class, 'deleteDocument'])->name('students.documents.delete');
     Route::get('/admin/students/documents/{document}/download', [StudentController::class, 'downloadDocument'])->name('students.documents.download');
 
