@@ -54,6 +54,9 @@ export default function ApplicationSuccess({ application }) {
                                         <div><span className="font-medium">الاسم:</span> {application.name}</div>
                                         <div><span className="font-medium">رقم الموبايل:</span> {application.mobile}</div>
                                         <div><span className="font-medium">المعدل:</span> {application.gpa || 'غير محدد'}</div>
+                                        {application.agent_name && (
+                                            <div><span className="font-medium">اسم المعقب:</span> {application.agent_name}</div>
+                                        )}
                                     </div>
                                 </div>
 

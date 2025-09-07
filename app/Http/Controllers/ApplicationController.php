@@ -36,6 +36,7 @@ class ApplicationController extends Controller
             'university_id' => 'required|exists:universities,id',
             'mobile' => 'required|string|regex:/^07[0-9]{9}$/',
             'gpa' => 'nullable|numeric|min:0|max:100',
+            'agent_name' => 'nullable|string|max:255',
             'pdf_file' => 'required|file|mimes:pdf|max:10240', // 10MB max
         ], [
             'name.required' => 'اسم الطالب مطلوب',
@@ -44,12 +45,13 @@ class ApplicationController extends Controller
             'university_id.required' => 'الجامعة مطلوبة',
             'mobile.required' => 'رقم الموبايل مطلوب',
             'mobile.regex' => 'رقم الموبايل يجب أن يكون عراقي صحيح',
+            'agent_name.max' => 'اسم المعقب يجب أن لا يزيد عن 255 حرف',
             'pdf_file.required' => 'ملف PDF مطلوب',
             'pdf_file.mimes' => 'الملف يجب أن يكون من نوع PDF',
             'pdf_file.max' => 'حجم الملف يجب أن لا يزيد عن 10 ميجابايت',
         ]);
 
-        $applicationData = $request->only(['name', 'department', 'stage', 'university_id', 'mobile', 'gpa']);
+        $applicationData = $request->only(['name', 'department', 'stage', 'university_id', 'mobile', 'gpa', 'agent_name']);
 
         // إنشاء رقم طلب فريد
         $applicationData['application_number'] = $this->generateApplicationNumber();

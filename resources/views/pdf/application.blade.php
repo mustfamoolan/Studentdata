@@ -201,6 +201,12 @@
                     <td class="info-label">تاريخ التقديم:</td>
                     <td class="info-value">{{ $application->created_at->format('Y/m/d') }}</td>
                 </tr>
+                @if($application->agent_name)
+                <tr>
+                    <td class="info-label">اسم المعقب:</td>
+                    <td class="info-value">{{ $application->agent_name }}</td>
+                </tr>
+                @endif
                 @if($application->reviewed_at)
                 <tr>
                     <td class="info-label">تاريخ المراجعة:</td>

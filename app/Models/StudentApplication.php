@@ -16,6 +16,7 @@ class StudentApplication extends Model
         'university_id',
         'mobile',
         'gpa',
+        'agent_name', // اسم المعقب
         'pdf_file', // الملف الجديد
         'application_number', // رقم الطلب
         'status',

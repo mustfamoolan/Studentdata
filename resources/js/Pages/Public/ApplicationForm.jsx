@@ -9,6 +9,7 @@ export default function ApplicationForm({ universities, flash }) {
         university_id: '',
         mobile: '',
         gpa: '',
+        agent_name: '', // حقل اسم المعقب الجديد
         pdf_file: null, // ملف PDF واحد بدلاً من الصور المنفصلة
     });
 
@@ -94,8 +95,10 @@ export default function ApplicationForm({ universities, flash }) {
                                             value={data.name}
                                             onChange={(e) => setData('name', e.target.value)}
                                             className="w-full px-3 py-2 border-2 border-gray-300 focus:outline-none focus:border-blue-600 text-sm"
+                                            placeholder="أدخل الاسم الثلاثي أو الرباعي كاملاً"
                                             required
                                         />
+                                        <p className="text-xs text-gray-500 mt-1">مثال: أحمد محمد علي حسن</p>
                                         {errors.name && <div className="text-red-600 text-sm mt-1">{errors.name}</div>}
                                     </div>
 
@@ -109,6 +112,7 @@ export default function ApplicationForm({ universities, flash }) {
                                             placeholder="07xxxxxxxxx"
                                             required
                                         />
+                                        <p className="text-xs text-gray-500 mt-1">رقم الهاتف مكون من 11 رقم يبدأ بـ 07</p>
                                         {errors.mobile && <div className="text-red-600 text-sm mt-1">{errors.mobile}</div>}
                                     </div>
 
@@ -124,6 +128,7 @@ export default function ApplicationForm({ universities, flash }) {
                                             className="w-full px-3 py-2 border-2 border-gray-300 focus:outline-none focus:border-blue-600 text-sm"
                                             placeholder="من 0 إلى 100"
                                         />
+                                        <p className="text-xs text-gray-500 mt-1">المعدل العام في الشهادة السابقة (اختياري)</p>
                                         {errors.gpa && <div className="text-red-600 text-sm mt-1">{errors.gpa}</div>}
                                     </div>
                                 </div>
@@ -135,7 +140,7 @@ export default function ApplicationForm({ universities, flash }) {
                                     <h4 className="font-bold text-gray-800">البيانات الأكاديمية</h4>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">القسم *</label>
                                         <input
@@ -143,8 +148,10 @@ export default function ApplicationForm({ universities, flash }) {
                                             value={data.department}
                                             onChange={(e) => setData('department', e.target.value)}
                                             className="w-full px-3 py-2 border-2 border-gray-300 focus:outline-none focus:border-blue-600 text-sm"
+                                            placeholder="مثال: هندسة حاسوب، طب، قانون"
                                             required
                                         />
+                                        <p className="text-xs text-gray-500 mt-1">اسم التخصص أو القسم المراد الالتحاق به</p>
                                         {errors.department && <div className="text-red-600 text-sm mt-1">{errors.department}</div>}
                                     </div>
 
@@ -160,6 +167,7 @@ export default function ApplicationForm({ universities, flash }) {
                                             <option value="ماجستير">ماجستير</option>
                                             <option value="دكتوراه">دكتوراه</option>
                                         </select>
+                                        <p className="text-xs text-gray-500 mt-1">المرحلة الدراسية المطلوب التسجيل فيها</p>
                                         {errors.stage && <div className="text-red-600 text-sm mt-1">{errors.stage}</div>}
                                     </div>
 
@@ -178,7 +186,30 @@ export default function ApplicationForm({ universities, flash }) {
                                                 </option>
                                             ))}
                                         </select>
+                                        <p className="text-xs text-gray-500 mt-1">اختر الجامعة التي تريد التقديم إليها</p>
                                         {errors.university_id && <div className="text-red-600 text-sm mt-1">{errors.university_id}</div>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* معلومات المعقب */}
+                            <div className="mb-8">
+                                <div className="bg-gray-50 border border-gray-300 px-4 py-2 mb-6">
+                                    <h4 className="font-bold text-gray-800">معلومات المعقب</h4>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">اسم المعقب المرسل</label>
+                                        <input
+                                            type="text"
+                                            value={data.agent_name}
+                                            onChange={(e) => setData('agent_name', e.target.value)}
+                                            className="w-full px-3 py-2 border-2 border-gray-300 focus:outline-none focus:border-blue-600 text-sm"
+                                            placeholder="أدخل اسم المعقب الذي ساعدك في التقديم"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">إذا كان هناك معقب ساعدك في تقديم الطلب، أدخل اسمه هنا (اختياري)</p>
+                                        {errors.agent_name && <div className="text-red-600 text-sm mt-1">{errors.agent_name}</div>}
                                     </div>
                                 </div>
                             </div>
@@ -201,10 +232,20 @@ export default function ApplicationForm({ universities, flash }) {
                                             className="w-full px-3 py-2 border-2 border-gray-300 focus:outline-none focus:border-blue-600 text-sm"
                                             required
                                         />
-                                        {errors.pdf_file && <div className="text-red-600 text-sm mt-1">{errors.pdf_file}</div>}
+                                        <div className="bg-yellow-50 border border-yellow-200 p-3 mt-2">
+                                            <p className="text-yellow-800 text-sm font-medium mb-2">المستندات المطلوبة في ملف PDF واحد:</p>
+                                            <ul className="text-yellow-700 text-xs space-y-1">
+                                                <li>• الصورة الشخصية (واضحة وحديثة)</li>
+                                                <li>• صورة جواز السفر أو البطاقة الشخصية</li>
+                                                <li>• الشهادة الأكاديمية السابقة (الثانوية للبكالوريوس)</li>
+                                                <li>• كشف الدرجات الأكاديمي</li>
+                                                <li>• أي مستندات إضافية مطلوبة حسب التخصص</li>
+                                            </ul>
+                                        </div>
                                         <p className="text-gray-600 text-xs mt-2">
-                                            يجب أن يحتوي الملف على: الصورة الشخصية، جواز السفر، الشهادات الأكاديمية
+                                            الحد الأقصى لحجم الملف: 10 ميجابايت - تنسيق PDF فقط
                                         </p>
+                                        {errors.pdf_file && <div className="text-red-600 text-sm mt-1">{errors.pdf_file}</div>}
                                     </div>
                                 </div>
                             </div>
