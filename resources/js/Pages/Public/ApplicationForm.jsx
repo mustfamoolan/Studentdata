@@ -17,18 +17,14 @@ export default function ApplicationForm({ universities, flash }) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        Object.keys(data).forEach(key => {
-            if (data[key]) {
-                formData.append(key, data[key]);
-            }
-        });
-
         post('/apply', {
-            data: formData,
-            preserveScroll: true,
+            forceFormData: true,
+            preserveScroll: false,
             onSuccess: () => {
-                reset();
+                // سيتم التوجيه تلقائياً إلى صفحة النجاح من الـ Controller
+            },
+            onError: (errors) => {
+                console.log('Errors:', errors);
             }
         });
     };

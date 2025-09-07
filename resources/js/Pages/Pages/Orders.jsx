@@ -402,7 +402,6 @@ export default function Orders({ applications = [], flash, user }) {
                                         value={statusData.status}
                                         onChange={(e) => setStatusData('status', e.target.value)}
                                         className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
-                                        required
                                     >
                                         <option value="pending">معلق</option>
                                         <option value="rejected">مرفوض</option>
@@ -459,13 +458,12 @@ export default function Orders({ applications = [], flash, user }) {
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">الكود *</label>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">الكود</label>
                                             <input
                                                 type="text"
                                                 value={convertData.code}
                                                 onChange={(e) => setConvertData('code', e.target.value)}
                                                 className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
-                                                required
                                             />
                                         </div>
 
@@ -760,13 +758,12 @@ export default function Orders({ applications = [], flash, user }) {
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">الكود *</label>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">الكود</label>
                                             <input
                                                 type="text"
                                                 value={convertData.code}
                                                 onChange={(e) => setConvertData('code', e.target.value)}
                                                 className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:border-blue-600"
-                                                required
                                                 placeholder="أدخل كود الطالب"
                                             />
                                         </div>

@@ -11,9 +11,9 @@ export default function AdmissionsCheck({ application = null, flash = null }) {
         post('/admissions/check');
     };
 
-    const downloadStudentPDF = () => {
-        if (application && application.status === 'approved' && application.student_id) {
-            window.open(`/student/${application.student_id}/pdf`, '_blank');
+    const downloadAcceptancePDF = () => {
+        if (application && application.status === 'accepted' && application.acceptance_file) {
+            window.open(`/application/${application.application_number}/acceptance-pdf`, '_blank');
         }
     };
 
@@ -116,18 +116,28 @@ export default function AdmissionsCheck({ application = null, flash = null }) {
                                 <div className="text-center mb-8">
                                     <div className={`inline-block px-6 py-3 rounded-lg text-lg font-bold mb-4 ${
                                         application.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300' :
-                                        application.status === 'approved' ? 'bg-green-100 text-green-800 border-2 border-green-300' :
+                                        application.status === 'approved' ? 'bg-blue-100 text-blue-800 border-2 border-blue-300' :
+                                        application.status === 'accepted' ? 'bg-green-100 text-green-800 border-2 border-green-300' :
                                         'bg-red-100 text-red-800 border-2 border-red-300'
                                     }`}>
                                         {application.status === 'pending' && '⏳ قيد المراجعة'}
-                                        {application.status === 'approved' && '✅ مقبول - مبروك!'}
+                                        {application.status === 'approved' && '✅ معتمد - في انتظار القبول النهائي'}
+                                        {application.status === 'accepted' && '🎉 مقبول نهائياً - مبروك!'}
                                         {application.status === 'rejected' && '❌ مرفوض'}
                                     </div>
 
-                                    {application.status === 'approved' && (
+                                    {application.status === 'accepted' && (
                                         <div className="bg-green-50 border border-green-300 p-4 rounded-lg mb-6">
                                             <p className="text-green-800 font-medium">
-                                                🎉 تهانينا! تم قبولك في البرنامج. يمكنك الآن تحميل ملف معلوماتك الكامل كطالب.
+                                                🎉 مبروك! تم قبولك نهائياً في البرنامج. يمكنك الآن تحميل ملف القبول الشامل الذي يحتوي على جميع معلوماتك ووثيقة القبول.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {application.status === 'approved' && (
+                                        <div className="bg-blue-50 border border-blue-300 p-4 rounded-lg mb-6">
+                                            <p className="text-blue-800 font-medium">
+                                                ✅ تم اعتماد طلبك! طلبك الآن في مرحلة المراجعة النهائية للقبول.
                                             </p>
                                         </div>
                                     )}
@@ -158,6 +168,7 @@ export default function AdmissionsCheck({ application = null, flash = null }) {
 
                                 {/* أزرار التحميل */}
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                    {/* زر تحميل استمارة الطلب - متاح دائماً */}
                                     <button
                                         onClick={downloadApplicationPDF}
                                         className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors duration-200 flex items-center justify-center"
@@ -168,27 +179,28 @@ export default function AdmissionsCheck({ application = null, flash = null }) {
                                         تحميل استمارة الطلب
                                     </button>
 
-                                    {application.status === 'approved' && application.student_id && (
+                                    {/* زر واحد فقط للقبول النهائي - PDF شامل */}
+                                    {application.status === 'accepted' && application.acceptance_file && (
                                         <button
-                                            onClick={downloadStudentPDF}
+                                            onClick={downloadAcceptancePDF}
                                             className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors duration-200 flex items-center justify-center"
                                         >
                                             <svg className="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                                             </svg>
-                                            تحميل ملف الطالب الكامل
+                                            تحميل ملف القبول الشامل (PDF)
                                         </button>
                                     )}
                                 </div>
 
-                                {/* تفاصيل إضافية للطلاب المقبولين */}
-                                {application.status === 'approved' && application.student && (
+                                {/* تفاصيل إضافية للطلاب المقبولين نهائياً */}
+                                {application.status === 'accepted' && application.student && (
                                     <div className="mt-8 bg-green-50 border border-green-300 p-6 rounded-lg">
-                                        <h5 className="font-bold text-green-800 mb-4">معلومات إضافية كطالب مقبول</h5>
+                                        <h5 className="font-bold text-green-800 mb-4">معلومات إضافية كطالب مقبول نهائياً</h5>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                            <div><span className="font-medium">رقم الطالب:</span> {application.student?.student_number}</div>
-                                            <div><span className="font-medium">المنحة:</span> {application.student?.scholarship || 'غير محدد'}</div>
-                                            <div><span className="font-medium">الرسوم المدفوعة:</span> {application.student?.fees_paid || 0} دينار</div>
+                                            <div><span className="font-medium">كود الطالب:</span> {application.student?.code}</div>
+                                            <div><span className="font-medium">تاريخ القبول:</span> {application.accepted_at ? new Date(application.accepted_at).toLocaleDateString('ar-SA') : 'غير محدد'}</div>
+                                            <div><span className="font-medium">الرسوم المدفوعة:</span> {application.student?.fees_received || 0} دينار</div>
                                             <div><span className="font-medium">الرسوم المتبقية:</span> {application.student?.fees_remaining || 0} دينار</div>
                                         </div>
                                     </div>

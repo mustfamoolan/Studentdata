@@ -18,7 +18,8 @@ Route::get('/', function () {
             return redirect()->route('employee.dashboard');
         }
     }
-    return redirect()->route('login');
+    // عرض الصفحة الرئيسية للزوار
+    return Inertia::render('Public/Welcome');
 })->name('home');
 
 // Public Application Form (accessible to everyone)
@@ -32,6 +33,7 @@ Route::post('/admissions/check', [ApplicationController::class, 'checkApplicatio
 // Public PDF Downloads (accessible to everyone)
 Route::get('/application/{application_number}/pdf', [ApplicationController::class, 'downloadApplicationPDF'])->name('application.pdf');
 Route::get('/student/{student}/pdf', [ApplicationController::class, 'downloadStudentPDF'])->name('student.pdf');
+Route::get('/application/{application_number}/acceptance-pdf', [ApplicationController::class, 'downloadAcceptancePDF'])->name('application.acceptance.pdf');
 
 // Authentication Routes
 Route::middleware(['guest'])->group(function () {
@@ -71,6 +73,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/orders', [ApplicationController::class, 'index'])->name('orders');
     Route::put('/admin/applications/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applications.updateStatus');
     Route::post('/admin/applications/{application}/convert', [ApplicationController::class, 'convertToStudent'])->name('applications.convert');
+
+    Route::get('/admin/acceptances', [ApplicationController::class, 'showAcceptances'])->name('acceptances');
+    Route::post('/admin/applications/{application}/accept', [ApplicationController::class, 'acceptApplication'])->name('applications.accept');
 
     Route::get('/admin/universities', [UniversityController::class, 'index'])->name('universities');
     Route::post('/admin/universities', [UniversityController::class, 'store'])->name('universities.store');

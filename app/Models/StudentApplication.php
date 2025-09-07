@@ -24,11 +24,15 @@ class StudentApplication extends Model
         'admin_notes',
         'reviewed_at',
         'reviewed_by',
-        'student_id' // ربط مع الطالب بعد القبول
+        'student_id', // ربط مع الطالب بعد القبول
+        'acceptance_file', // ملف القبول النهائي
+        'accepted_at', // تاريخ القبول النهائي
+        'accepted_by' // من قام بالقبول النهائي
     ];
 
     protected $casts = [
         'reviewed_at' => 'datetime',
+        'accepted_at' => 'datetime',
         'gpa' => 'decimal:2',
     ];
 

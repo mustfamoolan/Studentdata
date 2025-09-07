@@ -108,32 +108,45 @@ export default function StudentProfile({ student, universities, flash }) {
         const pdfBlob = await generateStudentPDF();
         if (!pdfBlob) return;
 
-        // تحضير النص
-        const text = `📋 *بيانات الطالب*
+        // تحضير النص المُنسق والجميل
+        const text = `🎓 *ملف الطالب الشامل*
 
-👤 *الاسم:* ${student.name}
+👤 *الطالب:* ${student.name}
 🆔 *الرقم الجامعي:* ${student.code}
-🏫 *الجامعة:* ${student.university?.name || 'غير محدد'}
+�️ *الجامعة:* ${student.university?.name || 'غير محدد'}
 📚 *القسم:* ${student.department}
-🎓 *المرحلة:* ${student.stage}
-📱 *رقم الهاتف:* ${student.mobile}
-${student.gpa ? `📊 *المعدل:* ${student.gpa}` : ''}
+� *المرحلة:* ${student.stage}
+📱 *الهاتف:* ${student.mobile}
+${student.gpa ? `📊 *المعدل:* ${student.gpa}%` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━
 
 💰 *المعلومات المالية:*
-• القسط: ${student.installment_total?.toLocaleString() || 0} د.ع
-• واصل القسط: ${student.installment_received?.toLocaleString() || 0} د.ع
-• باقي القسط: ${(student.installment_remaining || (student.installment_total - student.installment_received))?.toLocaleString() || 0} د.ع
 
-• الأجور: ${student.fees_total?.toLocaleString() || 0} د.ع
-• واصل الأجور: ${student.fees_received?.toLocaleString() || 0} د.ع
-• باقي الأجور: ${(student.fees_remaining || (student.fees_total - student.fees_received))?.toLocaleString() || 0} د.ع
+💳 *الأقساط:*
+• المبلغ الكامل: ${student.installment_total?.toLocaleString() || 0} د.ع
+• المبلغ المدفوع: ${student.installment_received?.toLocaleString() || 0} د.ع ✅
+• المبلغ المتبقي: ${(student.installment_remaining || (student.installment_total - student.installment_received))?.toLocaleString() || 0} د.ع ⏳
 
-${student.sender_agent ? `🔗 *المعقب المرسل:* ${student.sender_agent} (${student.sender_agent_fees?.toLocaleString() || 0} د.ع)` : ''}
-${student.receiver_agent ? `🔗 *المعقب المستلم:* ${student.receiver_agent} (${student.receiver_agent_fees?.toLocaleString() || 0} د.ع)` : ''}
+🏦 *الأجور:*
+• الأجور الكاملة: ${student.fees_total?.toLocaleString() || 0} د.ع
+• الأجور المدفوعة: ${student.fees_received?.toLocaleString() || 0} د.ع ✅
+• الأجور المتبقية: ${(student.fees_remaining || (student.fees_total - student.fees_received))?.toLocaleString() || 0} د.ع ⏳
 
-📄 *ملف PDF مرفق مع جميع التفاصيل والمستندات*
+${student.sender_agent ? `🤝 *المعقب المرسل:* ${student.sender_agent}
+💵 *أجوره:* ${student.sender_agent_fees?.toLocaleString() || 0} د.ع` : ''}
 
-🏛️ *وزارة التعليم العالي والبحث العلمي*`;
+${student.receiver_agent ? `🤝 *المعقب المستلم:* ${student.receiver_agent}
+💵 *أجوره:* ${student.receiver_agent_fees?.toLocaleString() || 0} د.ع` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 *المرفقات:*
+• ملف PDF شامل ومفصل مع جميع البيانات
+• ${student.documents?.length || 0} مستند إضافي
+
+🏛️ *وزارة التعليم العالي والبحث العلمي*
+🇮🇶 *جمهورية العراق*`;
 
         // إنشاء رابط WhatsApp
         const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
@@ -150,38 +163,49 @@ ${student.receiver_agent ? `🔗 *المعقب المستلم:* ${student.receiv
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    };
-
-    const handleShareTelegram = async () => {
+    };    const handleShareTelegram = async () => {
         const pdfBlob = await generateStudentPDF();
         if (!pdfBlob) return;
 
-        // تحضير النص
-        const text = `📋 **بيانات الطالب**
+        // تحضير النص المُنسق لـ Telegram
+        const text = `🎓 **ملف الطالب الشامل**
 
-👤 **الاسم:** ${student.name}
+👤 **الطالب:** ${student.name}
 🆔 **الرقم الجامعي:** ${student.code}
-🏫 **الجامعة:** ${student.university?.name || 'غير محدد'}
+�️ **الجامعة:** ${student.university?.name || 'غير محدد'}
 📚 **القسم:** ${student.department}
-🎓 **المرحلة:** ${student.stage}
-📱 **رقم الهاتف:** ${student.mobile}
-${student.gpa ? `📊 **المعدل:** ${student.gpa}` : ''}
+� **المرحلة:** ${student.stage}
+📱 **الهاتف:** ${student.mobile}
+${student.gpa ? `📊 **المعدل:** ${student.gpa}%` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━
 
 💰 **المعلومات المالية:**
-• القسط: ${student.installment_total?.toLocaleString() || 0} د.ع
-• واصل القسط: ${student.installment_received?.toLocaleString() || 0} د.ع
-• باقي القسط: ${(student.installment_remaining || (student.installment_total - student.installment_received))?.toLocaleString() || 0} د.ع
 
-• الأجور: ${student.fees_total?.toLocaleString() || 0} د.ع
-• واصل الأجور: ${student.fees_received?.toLocaleString() || 0} د.ع
-• باقي الأجور: ${(student.fees_remaining || (student.fees_total - student.fees_received))?.toLocaleString() || 0} د.ع
+💳 **الأقساط:**
+• المبلغ الكامل: ${student.installment_total?.toLocaleString() || 0} د.ع
+• المبلغ المدفوع: ${student.installment_received?.toLocaleString() || 0} د.ع ✅
+• المبلغ المتبقي: ${(student.installment_remaining || (student.installment_total - student.installment_received))?.toLocaleString() || 0} د.ع ⏳
 
-${student.sender_agent ? `🔗 **المعقب المرسل:** ${student.sender_agent} (${student.sender_agent_fees?.toLocaleString() || 0} د.ع)` : ''}
-${student.receiver_agent ? `🔗 **المعقب المستلم:** ${student.receiver_agent} (${student.receiver_agent_fees?.toLocaleString() || 0} د.ع)` : ''}
+🏦 **الأجور:**
+• الأجور الكاملة: ${student.fees_total?.toLocaleString() || 0} د.ع
+• الأجور المدفوعة: ${student.fees_received?.toLocaleString() || 0} د.ع ✅
+• الأجور المتبقية: ${(student.fees_remaining || (student.fees_total - student.fees_received))?.toLocaleString() || 0} د.ع ⏳
 
-📄 **ملف PDF مرفق مع جميع التفاصيل والمستندات**
+${student.sender_agent ? `🤝 **المعقب المرسل:** ${student.sender_agent}
+💵 **أجوره:** ${student.sender_agent_fees?.toLocaleString() || 0} د.ع` : ''}
 
-🏛️ **وزارة التعليم العالي والبحث العلمي**`;
+${student.receiver_agent ? `🤝 **المعقب المستلم:** ${student.receiver_agent}
+💵 **أجوره:** ${student.receiver_agent_fees?.toLocaleString() || 0} د.ع` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 **المرفقات:**
+• ملف PDF شامل ومفصل مع جميع البيانات
+• ${student.documents?.length || 0} مستند إضافي
+
+🏛️ **وزارة التعليم العالي والبحث العلمي**
+🇮🇶 **جمهورية العراق**`;
 
         // إنشاء رابط Telegram
         const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent('')}&text=${encodeURIComponent(text)}`;

@@ -257,7 +257,7 @@ class StudentController extends Controller
             $data['statusText'] = $statusText;
 
             // إنشاء HTML محتوى
-            $html = $this->generateStudentHTML($data);
+            $html = PDFTemplateController::generateStudentHTML($data);
 
             // إنشاء PDF
             $mpdf = new \Mpdf\Mpdf([

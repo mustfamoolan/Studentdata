@@ -155,7 +155,7 @@ class ApplicationController extends Controller
         }
 
         $request->validate([
-            'code' => 'required|string|unique:students,code',
+            'code' => 'nullable|string|unique:students,code',
             'date' => 'nullable',
             'installment_total' => 'nullable',
             'installment_received' => 'nullable',
@@ -182,17 +182,17 @@ class ApplicationController extends Controller
             'university_id' => $application->university_id,
             'mobile' => $application->mobile,
             'gpa' => $application->gpa,
-            'code' => $request->code,
-            'date' => $request->date,
+            'code' => $request->code ?: null,
+            'date' => $request->date ?: null,
             'installment_total' => is_numeric($request->installment_total) ? (float)$request->installment_total : 0,
             'installment_received' => is_numeric($request->installment_received) ? (float)$request->installment_received : 0,
             'installment_remaining' => is_numeric($request->installment_remaining) ? (float)$request->installment_remaining : 0,
             'fees_total' => is_numeric($request->fees_total) ? (float)$request->fees_total : 0,
             'fees_received' => is_numeric($request->fees_received) ? (float)$request->fees_received : 0,
             'fees_remaining' => is_numeric($request->fees_remaining) ? (float)$request->fees_remaining : 0,
-            'sender_agent' => $request->sender_agent,
+            'sender_agent' => $request->sender_agent ?: null,
             'sender_agent_fees' => is_numeric($request->sender_agent_fees) ? (float)$request->sender_agent_fees : 0,
-            'receiver_agent' => $request->receiver_agent,
+            'receiver_agent' => $request->receiver_agent ?: null,
             'receiver_agent_fees' => is_numeric($request->receiver_agent_fees) ? (float)$request->receiver_agent_fees : 0,
         ];
 
@@ -327,5 +327,130 @@ class ApplicationController extends Controller
         return response($mpdf->Output('', 'S'))
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'attachment; filename="student-' . $student->student_number . '.pdf"');
+    }
+
+    /**
+     * عرض صفحة قبولات الطلاب
+     */
+    public function showAcceptances()
+    {
+        // جلب الطلبات المعتمدة (approved) فقط
+        $applications = StudentApplication::with(['university'])
+            ->where('status', 'approved')
+            ->orderBy('reviewed_at', 'desc')
+            ->get();
+
+        return Inertia::render('Pages/Acceptances', [
+            'applications' => $applications
+        ]);
+    }
+
+    /**
+     * قبول نهائي للطلب وإضافة الطالب
+     */
+    public function acceptApplication(Request $request, StudentApplication $application)
+    {
+        // التحقق من أن الطلب معتمد ولم يتم قبوله نهائياً بعد
+        if ($application->status !== 'approved') {
+            return redirect()->route('acceptances')->with('error', 'هذا الطلب غير معتمد أو تم التعامل معه مسبقاً');
+        }
+
+        $request->validate([
+            'acceptance_file' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120', // 5MB max
+        ], [
+            'acceptance_file.required' => 'ملف القبول مطلوب',
+            'acceptance_file.mimes' => 'يجب أن يكون الملف من نوع: jpeg, png, jpg, pdf',
+            'acceptance_file.max' => 'حجم الملف يجب أن لا يزيد عن 5 ميجابايت',
+        ]);
+
+        // رفع ملف القبول
+        $acceptanceFile = null;
+        if ($request->hasFile('acceptance_file')) {
+            $acceptanceFile = $request->file('acceptance_file')->store('acceptances', 'public');
+        }
+
+        // تحديث حالة الطلب إلى "مقبول نهائياً"
+        $application->update([
+            'status' => 'accepted',
+            'acceptance_file' => $acceptanceFile,
+            'accepted_at' => now(),
+            'accepted_by' => auth()->user()->id
+        ]);
+
+        // إنشاء الطالب الجديد في قاعدة البيانات
+        $studentData = [
+            'name' => $application->name,
+            'department' => $application->department,
+            'stage' => $application->stage,
+            'university_id' => $application->university_id,
+            'mobile' => $application->mobile,
+            'gpa' => $application->gpa,
+            'date' => now()->toDateString(),
+            'code' => 'STD-' . date('Y') . '-' . str_pad($application->id, 6, '0', STR_PAD_LEFT),
+        ];
+
+        // نسخ الصورة الشخصية
+        if ($application->profile_image) {
+            $oldPath = $application->profile_image;
+            $newPath = str_replace('applications/profiles', 'students/profiles', $oldPath);
+            Storage::disk('public')->copy($oldPath, $newPath);
+            $studentData['profile_image'] = $newPath;
+        }
+
+        $student = Student::create($studentData);
+
+        // نسخ ملف PDF كمستند للطالب
+        if ($application->pdf_file) {
+            $oldPath = $application->pdf_file;
+            $newPath = str_replace('applications/documents', 'students/documents', $oldPath);
+            Storage::disk('public')->copy($oldPath, $newPath);
+
+            $fileSize = Storage::disk('public')->size($newPath);
+
+            $student->documents()->create([
+                'file_name' => 'مستندات الطلب الأصلي',
+                'file_path' => $newPath,
+                'file_type' => 'document',
+                'mime_type' => 'application/pdf',
+                'file_size' => $fileSize ?? 0
+            ]);
+        }
+
+        // ربط الطلب بالطالب
+        $application->update(['student_id' => $student->id]);
+
+        return redirect()->route('acceptances')->with('message', 'تم القبول النهائي للطالب وإضافته إلى قاعدة البيانات بنجاح');
+    }
+
+    /**
+     * تحميل ملف القبول النهائي الشامل
+     */
+    public function downloadAcceptancePDF($applicationNumber)
+    {
+        $application = StudentApplication::with(['university', 'student'])
+            ->where('application_number', $applicationNumber)
+            ->where('status', 'accepted')
+            ->firstOrFail();
+
+        if (!$application->acceptance_file) {
+            abort(404, 'ملف القبول غير موجود');
+        }
+
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'orientation' => 'P',
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 15,
+            'margin_bottom' => 15,
+        ]);
+
+        $html = view('pdf.acceptance', compact('application'))->render();
+        $mpdf->WriteHTML($html);
+
+        return response($mpdf->Output('', 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="acceptance-' . $application->application_number . '.pdf"');
     }
 }
