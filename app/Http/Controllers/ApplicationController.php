@@ -56,6 +56,9 @@ class ApplicationController extends Controller
         // إنشاء رقم طلب فريد
         $applicationData['application_number'] = $this->generateApplicationNumber();
 
+        // تحديد الحالة الافتراضية
+        $applicationData['status'] = 'pending';
+
         // رفع ملف PDF
         if ($request->hasFile('pdf_file')) {
             $applicationData['pdf_file'] = $request->file('pdf_file')->store('applications/documents', 'public');

@@ -70,19 +70,17 @@ export default function ApplicationSuccess({ application }) {
                                 </div>
                             </div>
 
-                            {/* حالة الطلب */}
+                            {/* معلومات إضافية */}
                             <div className="bg-blue-50 border border-blue-300 p-4 rounded mb-8">
-                                <h5 className="font-bold text-blue-800 mb-2">حالة الطلب</h5>
+                                <h5 className="font-bold text-blue-800 mb-2">ملاحظة هامة</h5>
                                 <div className="flex items-center">
-                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                        application.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                        application.status === 'approved' ? 'bg-green-100 text-green-800' :
-                                        'bg-red-100 text-red-800'
-                                    }`}>
-                                        {application.status === 'pending' ? 'قيد المراجعة' :
-                                         application.status === 'approved' ? 'مقبول' : 'مرفوض'}
+                                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                        ⏳ طلبك قيد المراجعة الآن
                                     </span>
                                 </div>
+                                <p className="text-blue-700 text-sm mt-2">
+                                    سيتم إشعارك بنتيجة المراجعة خلال 3-5 أيام عمل
+                                </p>
                             </div>
 
                             {/* أزرار العمل */}

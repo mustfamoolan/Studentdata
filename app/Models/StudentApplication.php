@@ -32,6 +32,13 @@ class StudentApplication extends Model
     ];
 
     /**
+     * القيم الافتراضية
+     */
+    protected $attributes = [
+        'status' => 'pending',
+    ];
+
+    /**
      * علاقة مع الجامعة
      */
     public function university()
