@@ -17,6 +17,7 @@ class StudentApplication extends Model
         'mobile',
         'gpa',
         'agent_name', // اسم المعقب
+        'profile_image', // الصورة الشخصية
         'pdf_file', // الملف الجديد
         'application_number', // رقم الطلب
         'status',

@@ -37,6 +37,7 @@ class ApplicationController extends Controller
             'mobile' => 'required|string|regex:/^07[0-9]{9}$/',
             'gpa' => 'nullable|numeric|min:0|max:100',
             'agent_name' => 'nullable|string|max:255',
+            'profile_image' => 'required|image|mimes:jpeg,png,jpg|max:2048', // 2MB max
             'pdf_file' => 'required|file|mimes:pdf|max:10240', // 10MB max
         ], [
             'name.required' => 'اسم الطالب مطلوب',
@@ -46,6 +47,10 @@ class ApplicationController extends Controller
             'mobile.required' => 'رقم الموبايل مطلوب',
             'mobile.regex' => 'رقم الموبايل يجب أن يكون عراقي صحيح',
             'agent_name.max' => 'اسم المعقب يجب أن لا يزيد عن 255 حرف',
+            'profile_image.required' => 'الصورة الشخصية مطلوبة',
+            'profile_image.image' => 'يجب أن يكون الملف صورة',
+            'profile_image.mimes' => 'الصورة يجب أن تكون من نوع: jpeg, png, jpg',
+            'profile_image.max' => 'حجم الصورة يجب أن لا يزيد عن 2 ميجابايت',
             'pdf_file.required' => 'ملف PDF مطلوب',
             'pdf_file.mimes' => 'الملف يجب أن يكون من نوع PDF',
             'pdf_file.max' => 'حجم الملف يجب أن لا يزيد عن 10 ميجابايت',
@@ -58,6 +63,11 @@ class ApplicationController extends Controller
 
         // تحديد الحالة الافتراضية
         $applicationData['status'] = 'pending';
+
+        // رفع الصورة الشخصية
+        if ($request->hasFile('profile_image')) {
+            $applicationData['profile_image'] = $request->file('profile_image')->store('applications/profiles', 'public');
+        }
 
         // رفع ملف PDF
         if ($request->hasFile('pdf_file')) {

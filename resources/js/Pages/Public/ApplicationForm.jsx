@@ -10,6 +10,7 @@ export default function ApplicationForm({ universities, flash }) {
         mobile: '',
         gpa: '',
         agent_name: '', // حقل اسم المعقب الجديد
+        profile_image: null, // الصورة الشخصية
         pdf_file: null, // ملف PDF واحد بدلاً من الصور المنفصلة
     });
 
@@ -131,6 +132,27 @@ export default function ApplicationForm({ universities, flash }) {
                                         <p className="text-xs text-gray-500 mt-1">المعدل العام في الشهادة السابقة (اختياري)</p>
                                         {errors.gpa && <div className="text-red-600 text-sm mt-1">{errors.gpa}</div>}
                                     </div>
+
+                                    <div className="md:col-span-2 lg:col-span-3">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">الصورة الشخصية *</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => setData('profile_image', e.target.files[0])}
+                                            className="w-full px-3 py-2 border-2 border-gray-300 focus:outline-none focus:border-blue-600 text-sm"
+                                            required
+                                        />
+                                        <div className="bg-blue-50 border border-blue-200 p-3 mt-2">
+                                            <p className="text-blue-800 text-sm font-medium mb-1">متطلبات الصورة الشخصية:</p>
+                                            <ul className="text-blue-700 text-xs space-y-1">
+                                                <li>• صورة واضحة وحديثة للوجه</li>
+                                                <li>• خلفية بيضاء أو فاتحة اللون</li>
+                                                <li>• حجم الصورة لا يزيد عن 2 ميجابايت</li>
+                                                <li>• التنسيقات المقبولة: JPG, PNG, JPEG</li>
+                                            </ul>
+                                        </div>
+                                        {errors.profile_image && <div className="text-red-600 text-sm mt-1">{errors.profile_image}</div>}
+                                    </div>
                                 </div>
                             </div>
 
@@ -235,12 +257,14 @@ export default function ApplicationForm({ universities, flash }) {
                                         <div className="bg-yellow-50 border border-yellow-200 p-3 mt-2">
                                             <p className="text-yellow-800 text-sm font-medium mb-2">المستندات المطلوبة في ملف PDF واحد:</p>
                                             <ul className="text-yellow-700 text-xs space-y-1">
-                                                <li>• الصورة الشخصية (واضحة وحديثة)</li>
                                                 <li>• صورة جواز السفر أو البطاقة الشخصية</li>
                                                 <li>• الشهادة الأكاديمية السابقة (الثانوية للبكالوريوس)</li>
                                                 <li>• كشف الدرجات الأكاديمي</li>
                                                 <li>• أي مستندات إضافية مطلوبة حسب التخصص</li>
                                             </ul>
+                                            <p className="text-yellow-600 text-xs mt-2 font-medium">
+                                                ملاحظة: الصورة الشخصية يتم رفعها منفصلة في الحقل أعلاه
+                                            </p>
                                         </div>
                                         <p className="text-gray-600 text-xs mt-2">
                                             الحد الأقصى لحجم الملف: 10 ميجابايت - تنسيق PDF فقط
