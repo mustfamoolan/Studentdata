@@ -146,17 +146,17 @@ class ApplicationController extends Controller
 
         $request->validate([
             'code' => 'required|string|unique:students,code',
-            'date' => 'nullable|date',
-            'installment_total' => 'nullable|numeric|min:0',
-            'installment_received' => 'nullable|numeric|min:0',
-            'installment_remaining' => 'nullable|numeric|min:0',
-            'fees_total' => 'nullable|numeric|min:0',
-            'fees_received' => 'nullable|numeric|min:0',
-            'fees_remaining' => 'nullable|numeric|min:0',
-            'sender_agent' => 'nullable|string',
-            'sender_agent_fees' => 'nullable|numeric|min:0',
-            'receiver_agent' => 'nullable|string',
-            'receiver_agent_fees' => 'nullable|numeric|min:0',
+            'date' => 'nullable',
+            'installment_total' => 'nullable',
+            'installment_received' => 'nullable',
+            'installment_remaining' => 'nullable',
+            'fees_total' => 'nullable',
+            'fees_received' => 'nullable',
+            'fees_remaining' => 'nullable',
+            'sender_agent' => 'nullable',
+            'sender_agent_fees' => 'nullable',
+            'receiver_agent' => 'nullable',
+            'receiver_agent_fees' => 'nullable',
         ], [
             'code.unique' => 'هذا الكود مستخدم من قبل طالب آخر'
         ]);
@@ -174,16 +174,16 @@ class ApplicationController extends Controller
             'gpa' => $application->gpa,
             'code' => $request->code,
             'date' => $request->date,
-            'installment_total' => $request->installment_total ?? 0,
-            'installment_received' => $request->installment_received ?? 0,
-            'installment_remaining' => $request->installment_remaining ?? 0,
-            'fees_total' => $request->fees_total ?? 0,
-            'fees_received' => $request->fees_received ?? 0,
-            'fees_remaining' => $request->fees_remaining ?? 0,
+            'installment_total' => is_numeric($request->installment_total) ? (float)$request->installment_total : 0,
+            'installment_received' => is_numeric($request->installment_received) ? (float)$request->installment_received : 0,
+            'installment_remaining' => is_numeric($request->installment_remaining) ? (float)$request->installment_remaining : 0,
+            'fees_total' => is_numeric($request->fees_total) ? (float)$request->fees_total : 0,
+            'fees_received' => is_numeric($request->fees_received) ? (float)$request->fees_received : 0,
+            'fees_remaining' => is_numeric($request->fees_remaining) ? (float)$request->fees_remaining : 0,
             'sender_agent' => $request->sender_agent,
-            'sender_agent_fees' => $request->sender_agent_fees ?? 0,
+            'sender_agent_fees' => is_numeric($request->sender_agent_fees) ? (float)$request->sender_agent_fees : 0,
             'receiver_agent' => $request->receiver_agent,
-            'receiver_agent_fees' => $request->receiver_agent_fees ?? 0,
+            'receiver_agent_fees' => is_numeric($request->receiver_agent_fees) ? (float)$request->receiver_agent_fees : 0,
         ];
 
         // نسخ الصورة الشخصية
@@ -202,10 +202,15 @@ class ApplicationController extends Controller
             $newPath = str_replace('applications/documents', 'students/documents', $oldPath);
             Storage::disk('public')->copy($oldPath, $newPath);
 
+            // الحصول على حجم الملف
+            $fileSize = Storage::disk('public')->size($newPath);
+
             $student->documents()->create([
                 'file_name' => 'مستندات الطلب الأصلي',
                 'file_path' => $newPath,
-                'mime_type' => 'application/pdf'
+                'file_type' => 'document',
+                'mime_type' => 'application/pdf',
+                'file_size' => $fileSize ?? 0
             ]);
         }
 

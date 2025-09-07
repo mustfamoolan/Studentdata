@@ -55,7 +55,20 @@ export default function Orders({ applications = [], flash, user }) {
 
     const handleConvert = (application) => {
         setSelectedApplication(application);
-        resetConvert();
+        setConvertData({
+            code: '',
+            date: '',
+            installment_total: 0,
+            installment_received: 0,
+            installment_remaining: 0,
+            fees_total: 0,
+            fees_received: 0,
+            fees_remaining: 0,
+            sender_agent: application.agent_name || '',
+            sender_agent_fees: 0,
+            receiver_agent: '',
+            receiver_agent_fees: 0,
+        });
         setShowConvertModal(true);
     };
 
@@ -70,7 +83,7 @@ export default function Orders({ applications = [], flash, user }) {
             fees_total: 0,
             fees_received: 0,
             fees_remaining: 0,
-            sender_agent: '',
+            sender_agent: application.agent_name || '',
             sender_agent_fees: 0,
             receiver_agent: '',
             receiver_agent_fees: 0,

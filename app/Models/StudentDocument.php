@@ -16,6 +16,11 @@ class StudentDocument extends Model
         'file_size'
     ];
 
+    protected $attributes = [
+        'file_type' => 'document',
+        'file_size' => 0
+    ];
+
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
