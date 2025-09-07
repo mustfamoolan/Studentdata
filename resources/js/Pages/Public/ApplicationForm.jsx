@@ -9,9 +9,7 @@ export default function ApplicationForm({ universities, flash }) {
         university_id: '',
         mobile: '',
         gpa: '',
-        profile_image: null,
-        passport_image: null,
-        certificate_image: null,
+        pdf_file: null, // ملف PDF واحد بدلاً من الصور المنفصلة
     });
 
     const handleSubmit = (e) => {
@@ -191,41 +189,22 @@ export default function ApplicationForm({ universities, flash }) {
                                     <h4 className="font-bold text-gray-800">المستندات المطلوبة</h4>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">الصورة الشخصية *</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            ملف PDF يحتوي على جميع المستندات *
+                                        </label>
                                         <input
                                             type="file"
-                                            accept="image/*"
-                                            onChange={(e) => setData('profile_image', e.target.files[0])}
+                                            accept=".pdf"
+                                            onChange={(e) => setData('pdf_file', e.target.files[0])}
                                             className="w-full px-3 py-2 border-2 border-gray-300 focus:outline-none focus:border-blue-600 text-sm"
                                             required
                                         />
-                                        {errors.profile_image && <div className="text-red-600 text-sm mt-1">{errors.profile_image}</div>}
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">صورة جواز السفر *</label>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => setData('passport_image', e.target.files[0])}
-                                            className="w-full px-3 py-2 border-2 border-gray-300 focus:outline-none focus:border-blue-600 text-sm"
-                                            required
-                                        />
-                                        {errors.passport_image && <div className="text-red-600 text-sm mt-1">{errors.passport_image}</div>}
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">صورة الشهادة *</label>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => setData('certificate_image', e.target.files[0])}
-                                            className="w-full px-3 py-2 border-2 border-gray-300 focus:outline-none focus:border-blue-600 text-sm"
-                                            required
-                                        />
-                                        {errors.certificate_image && <div className="text-red-600 text-sm mt-1">{errors.certificate_image}</div>}
+                                        {errors.pdf_file && <div className="text-red-600 text-sm mt-1">{errors.pdf_file}</div>}
+                                        <p className="text-gray-600 text-xs mt-2">
+                                            يجب أن يحتوي الملف على: الصورة الشخصية، جواز السفر، الشهادات الأكاديمية
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -235,9 +214,10 @@ export default function ApplicationForm({ universities, flash }) {
                                 <h5 className="font-bold text-blue-800 mb-2">إرشادات مهمة:</h5>
                                 <ul className="text-blue-700 text-sm space-y-1">
                                     <li>• تأكد من أن جميع البيانات صحيحة قبل الإرسال</li>
-                                    <li>• يجب أن تكون الصور واضحة وذات جودة عالية</li>
+                                    <li>• يجب أن يكون ملف PDF واضح وذو جودة عالية</li>
+                                    <li>• تأكد من أن الملف يحتوي على جميع المستندات المطلوبة</li>
+                                    <li>• سيتم إعطاؤك رقم طلب للاستعلام عن حالة القبول</li>
                                     <li>• سيتم مراجعة طلبك والرد عليك خلال 3-5 أيام عمل</li>
-                                    <li>• في حالة وجود أي استفسار، يرجى التواصل مع الإدارة</li>
                                 </ul>
                             </div>
 

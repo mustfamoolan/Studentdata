@@ -25,6 +25,14 @@ Route::get('/', function () {
 Route::get('/apply', [ApplicationController::class, 'showApplicationForm'])->name('application.form');
 Route::post('/apply', [ApplicationController::class, 'submitApplication'])->name('application.submit');
 
+// Public Admissions Check (accessible to everyone)
+Route::get('/admissions', [ApplicationController::class, 'showAdmissionsCheck'])->name('admissions.check');
+Route::post('/admissions/check', [ApplicationController::class, 'checkApplication'])->name('admissions.search');
+
+// Public PDF Downloads (accessible to everyone)
+Route::get('/application/{application_number}/pdf', [ApplicationController::class, 'downloadApplicationPDF'])->name('application.pdf');
+Route::get('/student/{student}/pdf', [ApplicationController::class, 'downloadStudentPDF'])->name('student.pdf');
+
 // Authentication Routes
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

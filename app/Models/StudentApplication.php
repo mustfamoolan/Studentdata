@@ -16,13 +16,13 @@ class StudentApplication extends Model
         'university_id',
         'mobile',
         'gpa',
-        'profile_image',
-        'passport_image',
-        'certificate_image',
+        'pdf_file', // الملف الجديد
+        'application_number', // رقم الطلب
         'status',
         'admin_notes',
         'reviewed_at',
-        'reviewed_by'
+        'reviewed_by',
+        'student_id' // ربط مع الطالب بعد القبول
     ];
 
     protected $casts = [
@@ -44,6 +44,14 @@ class StudentApplication extends Model
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * علاقة مع الطالب (بعد القبول)
+     */
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
     }
 
     /**
@@ -71,4 +79,4 @@ class StudentApplication extends Model
             default => 'غير محدد'
         };
     }
-} 
+}

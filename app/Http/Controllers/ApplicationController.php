@@ -36,9 +36,7 @@ class ApplicationController extends Controller
             'university_id' => 'required|exists:universities,id',
             'mobile' => 'required|string|regex:/^07[0-9]{9}$/',
             'gpa' => 'nullable|numeric|min:0|max:100',
-            'profile_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'passport_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            'certificate_image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'pdf_file' => 'required|file|mimes:pdf|max:10240', // 10MB max
         ], [
             'name.required' => 'اسم الطالب مطلوب',
             'department.required' => 'القسم مطلوب',
@@ -46,29 +44,42 @@ class ApplicationController extends Controller
             'university_id.required' => 'الجامعة مطلوبة',
             'mobile.required' => 'رقم الموبايل مطلوب',
             'mobile.regex' => 'رقم الموبايل يجب أن يكون عراقي صحيح',
-            'profile_image.required' => 'الصورة الشخصية مطلوبة',
-            'passport_image.required' => 'صورة جواز السفر مطلوبة',
-            'certificate_image.required' => 'صورة الشهادة مطلوبة',
+            'pdf_file.required' => 'ملف PDF مطلوب',
+            'pdf_file.mimes' => 'الملف يجب أن يكون من نوع PDF',
+            'pdf_file.max' => 'حجم الملف يجب أن لا يزيد عن 10 ميجابايت',
         ]);
 
         $applicationData = $request->only(['name', 'department', 'stage', 'university_id', 'mobile', 'gpa']);
 
-        // رفع الصور
-        if ($request->hasFile('profile_image')) {
-            $applicationData['profile_image'] = $request->file('profile_image')->store('applications/profiles', 'public');
+        // إنشاء رقم طلب فريد
+        $applicationData['application_number'] = $this->generateApplicationNumber();
+
+        // رفع ملف PDF
+        if ($request->hasFile('pdf_file')) {
+            $applicationData['pdf_file'] = $request->file('pdf_file')->store('applications/documents', 'public');
         }
 
-        if ($request->hasFile('passport_image')) {
-            $applicationData['passport_image'] = $request->file('passport_image')->store('applications/passports', 'public');
-        }
+        $application = StudentApplication::create($applicationData);
 
-        if ($request->hasFile('certificate_image')) {
-            $applicationData['certificate_image'] = $request->file('certificate_image')->store('applications/certificates', 'public');
-        }
+        return Inertia::render('Public/ApplicationSuccess', [
+            'application' => $application->load('university')
+        ]);
+    }
 
-        StudentApplication::create($applicationData);
+    /**
+     * إنشاء رقم طلب فريد
+     */
+    private function generateApplicationNumber()
+    {
+        $year = date('Y');
+        $month = date('m');
+        $day = date('d');
 
-        return redirect()->back()->with('success', 'تم إرسال طلبك بنجاح! سيتم مراجعته والرد عليك قريباً.');
+        // البحث عن آخر رقم في نفس اليوم
+        $lastNumber = StudentApplication::whereDate('created_at', today())
+            ->count() + 1;
+
+        return sprintf('APP-%s-%s%s-%06d', $year, $month, $day, $lastNumber);
     }
 
     /**
@@ -180,39 +191,121 @@ class ApplicationController extends Controller
 
         $student = Student::create($studentData);
 
-        // نسخ وحفظ المستندات
-        if ($application->passport_image) {
-            $oldPath = $application->passport_image;
-            $newPath = str_replace('applications/passports', 'students/documents', $oldPath);
+        // نسخ ملف PDF كمستند للطالب
+        if ($application->pdf_file) {
+            $oldPath = $application->pdf_file;
+            $newPath = str_replace('applications/documents', 'students/documents', $oldPath);
             Storage::disk('public')->copy($oldPath, $newPath);
 
             $student->documents()->create([
-                'file_name' => 'صورة جواز السفر',
+                'file_name' => 'مستندات الطلب الأصلي',
                 'file_path' => $newPath,
-                'mime_type' => Storage::disk('public')->mimeType($newPath)
+                'mime_type' => 'application/pdf'
             ]);
         }
 
-        if ($application->certificate_image) {
-            $oldPath = $application->certificate_image;
-            $newPath = str_replace('applications/certificates', 'students/documents', $oldPath);
-            Storage::disk('public')->copy($oldPath, $newPath);
-
-            $student->documents()->create([
-                'file_name' => 'صورة الشهادة',
-                'file_path' => $newPath,
-                'mime_type' => Storage::disk('public')->mimeType($newPath)
-            ]);
-        }
-
-        // إضافة ملاحظات ومراجع الطلب
-        $user = auth()->user();
+        // ربط الطلب بالطالب
         $application->update([
+            'student_id' => $student->id,
             'admin_notes' => 'تم قبول الطلب وإضافة الطالب إلى النظام',
             'reviewed_at' => now(),
-            'reviewed_by' => $user ? $user->id : null
+            'reviewed_by' => auth()->user() ? auth()->user()->id : null
         ]);
 
         return redirect()->route('orders')->with('message', 'تم قبول الطلب وإضافة الطالب بنجاح');
+    }
+
+    /**
+     * عرض صفحة الاستعلام عن القبولات
+     */
+    public function showAdmissionsCheck()
+    {
+        return Inertia::render('Public/AdmissionsCheck');
+    }
+
+    /**
+     * البحث عن طلب بالرقم
+     */
+    public function checkApplication(Request $request)
+    {
+        $request->validate([
+            'application_number' => 'required|string'
+        ], [
+            'application_number.required' => 'رقم الطلب مطلوب'
+        ]);
+
+        $application = StudentApplication::with(['university', 'student'])
+            ->where('application_number', $request->application_number)
+            ->first();
+
+        if (!$application) {
+            return redirect()->back()->with('error', 'رقم الطلب غير صحيح أو غير موجود');
+        }
+
+        return Inertia::render('Public/AdmissionsCheck', [
+            'application' => $application
+        ]);
+    }
+
+    /**
+     * تحميل ملف PDF لاستمارة الطلب
+     */
+    public function downloadApplicationPDF($application_number)
+    {
+        $application = StudentApplication::with('university')
+            ->where('application_number', $application_number)
+            ->firstOrFail();
+
+        // استخدام mPDF لإنشاء PDF
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'default_font_size' => 12,
+            'default_font' => 'DejaVuSans',
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 15,
+            'margin_bottom' => 15,
+        ]);
+
+        $html = view('pdf.application', compact('application'))->render();
+        $mpdf->WriteHTML($html);
+
+        return response($mpdf->Output('', 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="application-' . $application_number . '.pdf"');
+    }
+
+    /**
+     * تحميل ملف PDF للطالب الكامل
+     */
+    public function downloadStudentPDF(Student $student)
+    {
+        $student->load(['university', 'documents']);
+
+        // التأكد من أن الطالب مقبول
+        $application = StudentApplication::where('student_id', $student->id)->first();
+        if (!$application || $application->status !== 'approved') {
+            abort(404, 'غير مسموح بتحميل هذا الملف');
+        }
+
+        // استخدام mPDF لإنشاء PDF
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'default_font_size' => 12,
+            'default_font' => 'DejaVuSans',
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 15,
+            'margin_bottom' => 15,
+        ]);
+
+        $html = view('pdf.student', compact('student', 'application'))->render();
+        $mpdf->WriteHTML($html);
+
+        return response($mpdf->Output('', 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="student-' . $student->student_number . '.pdf"');
     }
 }
