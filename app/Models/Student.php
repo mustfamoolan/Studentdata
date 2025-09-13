@@ -53,6 +53,11 @@ class Student extends Model
         return $this->hasMany(StudentDocument::class);
     }
 
+    public function application(): BelongsTo
+    {
+        return $this->belongsTo(StudentApplication::class, 'id', 'student_id');
+    }
+
     // حساب المبلغ المتبقي تلقائياً
     protected static function booted()
     {

@@ -35,7 +35,7 @@ class StudentController extends Controller
      */
     public function profile(Student $student)
     {
-        $student->load(['university', 'documents']);
+        $student->load(['university', 'documents', 'application']);
         $universities = University::orderBy('name')->get();
 
         return Inertia::render('Pages/StudentProfile', [

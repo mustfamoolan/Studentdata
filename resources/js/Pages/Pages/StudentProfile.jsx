@@ -154,15 +154,22 @@ ${student.receiver_agent ? `🤝 *المعقب المستلم:* ${student.receiv
         // فتح WhatsApp في نافذة جديدة
         window.open(whatsappUrl, '_blank');
 
-        // تحميل ملف PDF للمستخدم
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `student_${student.code}_${student.name}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // تحميل نفس PDF القبول الشامل المستخدم في صفحة فحص القبول
+        // البحث عن الطلب المرتبط بهذا الطالب
+        if (student.application && student.application.application_number && student.application.status === 'accepted') {
+            // إذا كان لدى الطالب طلب مقبول نهائياً، استخدم PDF القبول الشامل
+            window.open(`/application/${student.application.application_number}/acceptance-pdf`, '_blank');
+        } else {
+            // في حالة عدم وجود طلب مقبول نهائياً، استخدم PDF الطالب العادي
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `student_${student.code}_${student.name}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
     };    const handleShareTelegram = async () => {
         const pdfBlob = await generateStudentPDF();
         if (!pdfBlob) return;
@@ -213,15 +220,21 @@ ${student.receiver_agent ? `🤝 **المعقب المستلم:** ${student.rece
         // فتح Telegram في نافذة جديدة
         window.open(telegramUrl, '_blank');
 
-        // تحميل ملف PDF للمستخدم
-        const url = URL.createObjectURL(pdfBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `student_${student.code}_${student.name}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // تحميل نفس PDF القبول الشامل المستخدم في صفحة فحص القبول
+        if (student.application && student.application.application_number && student.application.status === 'accepted') {
+            // إذا كان لدى الطالب طلب مقبول نهائياً، استخدم PDF القبول الشامل
+            window.open(`/application/${student.application.application_number}/acceptance-pdf`, '_blank');
+        } else {
+            // في حالة عدم وجود طلب مقبول نهائياً، استخدم PDF الطالب العادي
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `student_${student.code}_${student.name}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
     };
 
     const paymentPercentage = student.installment_total > 0
