@@ -198,8 +198,6 @@ export default function Students({ students, universities, flash, user }) {
 
     // دالة تحديث حالة الطلب
     const handleStatusChange = (studentId, newStatus) => {
-        if (newStatus === 'no_application') return;
-
         if (confirm('هل أنت متأكد من تحديث حالة الطلب؟')) {
             router.put(`/admin/students/${studentId}/application-status`, {
                 status: newStatus
@@ -210,9 +208,7 @@ export default function Students({ students, universities, flash, user }) {
                 }
             });
         }
-    };
-
-    return (
+    };    return (
         <AppLayout>
             <Head title="إدارة الطلاب" />
 
@@ -322,11 +318,13 @@ export default function Students({ students, universities, flash, user }) {
                                         </tr>
                                     ) : (
                                         filteredStudents.map((student, index) => {
-                                            // حالة الطلب
-                                            let applicationStatusColor = 'text-gray-600';
-                                            let applicationStatusText = 'لا يوجد طلب';
+                                            // حالة الطلب - افتراضياً معلق للجميع
+                                            let applicationStatusColor = 'text-yellow-600';
+                                            let applicationStatusText = 'معلق';
+                                            let currentStatus = 'pending'; // الحالة الافتراضية
 
                                             if (student.application) {
+                                                currentStatus = student.application.status;
                                                 switch (student.application.status) {
                                                     case 'pending':
                                                         applicationStatusColor = 'text-yellow-600';
@@ -354,12 +352,11 @@ export default function Students({ students, universities, flash, user }) {
                                                     </td>
                                                     <td className="border-l border-gray-300 px-4 py-3 text-sm text-center">
                                                         <select
-                                                            value={student.application?.status || 'no_application'}
+                                                            value={currentStatus}
                                                             onChange={(e) => handleStatusChange(student.id, e.target.value)}
                                                             className={`${applicationStatusColor} font-medium px-2 py-1 text-xs border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                                                             disabled={user.role !== 'admin' && user.role !== 'supervisor'}
                                                         >
-                                                            <option value="no_application" disabled className="text-gray-500">لا يوجد طلب</option>
                                                             <option value="pending" className="text-yellow-600">معلق</option>
                                                             <option value="approved" className="text-blue-600">مقبول</option>
                                                             <option value="accepted" className="text-green-600">قبول نهائي</option>
