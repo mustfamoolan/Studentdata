@@ -225,14 +225,43 @@ ${student.receiver_agent ? `🤝 **المعقب المستلم:** ${student.rece
         ? Math.round((student.installment_received / student.installment_total) * 100)
         : 0;
 
-    let statusColor = 'text-red-600';
-    let statusText = 'معلق';
+    // حالة الدفع
+    let paymentStatusColor = 'text-red-600';
+    let paymentStatusText = 'معلق';
     if (paymentPercentage >= 100) {
-        statusColor = 'text-green-600';
-        statusText = 'مكتمل';
+        paymentStatusColor = 'text-green-600';
+        paymentStatusText = 'مكتمل';
     } else if (paymentPercentage >= 50) {
-        statusColor = 'text-yellow-600';
-        statusText = 'جزئي';
+        paymentStatusColor = 'text-yellow-600';
+        paymentStatusText = 'جزئي';
+    }
+
+    // حالة الطلب (من نظام القبول)
+    let applicationStatusColor = 'text-gray-600';
+    let applicationStatusText = 'لا يوجد طلب';
+
+    if (student.application) {
+        switch (student.application.status) {
+            case 'pending':
+                applicationStatusColor = 'text-yellow-600';
+                applicationStatusText = 'معلق';
+                break;
+            case 'approved':
+                applicationStatusColor = 'text-blue-600';
+                applicationStatusText = 'مقبول';
+                break;
+            case 'accepted':
+                applicationStatusColor = 'text-green-600';
+                applicationStatusText = 'قبول نهائي';
+                break;
+            case 'rejected':
+                applicationStatusColor = 'text-red-600';
+                applicationStatusText = 'مرفوض';
+                break;
+            default:
+                applicationStatusColor = 'text-gray-600';
+                applicationStatusText = 'غير محدد';
+        }
     }
 
     return (
@@ -389,13 +418,39 @@ ${student.receiver_agent ? `🤝 **المعقب المستلم:** ${student.rece
                                 <div className="p-4">
                                     <table className="w-full border border-gray-400">
                                         <tbody>
+                                            {/* حالة الطلب */}
+                                            <tr>
+                                                <td className="border border-gray-400 px-3 py-2 bg-gray-50 font-medium text-gray-700 w-1/3">
+                                                    حالة الطلب
+                                                </td>
+                                                <td className="border border-gray-400 px-3 py-2">
+                                                    <span className={`${applicationStatusColor} font-bold`}>
+                                                        {applicationStatusText}
+                                                    </span>
+                                                    {student.application && (
+                                                        <div className="text-sm text-gray-600 mt-1 space-y-1">
+                                                            {student.application.application_number && (
+                                                                <div>رقم الطلب: {student.application.application_number}</div>
+                                                            )}
+                                                            {student.application.status === 'accepted' && student.application.accepted_at && (
+                                                                <div>تاريخ القبول النهائي: {new Date(student.application.accepted_at).toLocaleDateString('ar-EG')}</div>
+                                                            )}
+                                                            {student.application.status === 'approved' && student.application.reviewed_at && (
+                                                                <div>تاريخ المراجعة: {new Date(student.application.reviewed_at).toLocaleDateString('ar-EG')}</div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </td>
+                                            </tr>
+
+                                            {/* حالة الدفع */}
                                             <tr>
                                                 <td className="border border-gray-400 px-3 py-2 bg-gray-50 font-medium text-gray-700 w-1/3">
                                                     حالة الدفع
                                                 </td>
                                                 <td className="border border-gray-400 px-3 py-2">
-                                                    <span className={`${statusColor} font-bold`}>
-                                                        {statusText} ({paymentPercentage}%)
+                                                    <span className={`${paymentStatusColor} font-bold`}>
+                                                        {paymentStatusText} ({paymentPercentage}%)
                                                     </span>
                                                 </td>
                                             </tr>
@@ -543,8 +598,8 @@ ${student.receiver_agent ? `🤝 **المعقب المستلم:** ${student.rece
                                         </div>
                                     )}
 
-                                    <div className={`inline-block px-3 py-1 border ${statusColor === 'text-green-600' ? 'border-green-600 bg-green-50' : statusColor === 'text-yellow-600' ? 'border-yellow-600 bg-yellow-50' : 'border-red-600 bg-red-50'} text-sm font-medium`}>
-                                        {statusText}
+                                    <div className={`inline-block px-3 py-1 border ${applicationStatusColor === 'text-green-600' ? 'border-green-600 bg-green-50' : applicationStatusColor === 'text-blue-600' ? 'border-blue-600 bg-blue-50' : applicationStatusColor === 'text-yellow-600' ? 'border-yellow-600 bg-yellow-50' : applicationStatusColor === 'text-red-600' ? 'border-red-600 bg-red-50' : 'border-gray-600 bg-gray-50'} text-sm font-medium`}>
+                                        {applicationStatusText}
                                     </div>
                                 </div>
                             </div>
