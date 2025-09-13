@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\University;
 use App\Models\StudentDocument;
+use App\Models\StudentApplication;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +18,7 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::with(['university', 'documents'])
+        $students = Student::with(['university', 'documents', 'application'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -425,5 +426,54 @@ class StudentController extends Controller
         </div>';
 
         return $html;
+    }
+
+    /**
+     * Update student application status
+     */
+    public function updateApplicationStatus(Request $request, Student $student)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,approved,accepted,rejected'
+        ]);
+
+        // إذا لم يكن للطالب طلب، قم بإنشاء واحد
+        if (!$student->application) {
+            // إنشاء طلب جديد للطالب
+            $application = StudentApplication::create([
+                'name' => $student->name,
+                'department' => $student->department,
+                'stage' => $student->stage,
+                'university_id' => $student->university_id,
+                'mobile' => $student->mobile,
+                'gpa' => $student->gpa,
+                'profile_image' => $student->profile_image,
+                'application_number' => 'APP-' . str_pad($student->id, 6, '0', STR_PAD_LEFT),
+                'status' => $request->status,
+                'student_id' => $student->id,
+                'reviewed_at' => now(),
+                'reviewed_by' => auth()->id()
+            ]);
+        } else {
+            // تحديث الطلب الموجود
+            $student->application->update([
+                'status' => $request->status,
+                'reviewed_at' => now(),
+                'reviewed_by' => auth()->id()
+            ]);
+
+            // إذا تم القبول النهائي، حدث تاريخ القبول
+            if ($request->status === 'accepted') {
+                $student->application->update([
+                    'accepted_at' => now(),
+                    'accepted_by' => auth()->id()
+                ]);
+            }
+        }
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => 'تم تحديث حالة الطلب بنجاح'
+        ]);
     }
 }

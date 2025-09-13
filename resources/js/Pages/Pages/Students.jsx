@@ -196,6 +196,22 @@ export default function Students({ students, universities, flash, user }) {
         });
     };
 
+    // دالة تحديث حالة الطلب
+    const handleStatusChange = (studentId, newStatus) => {
+        if (newStatus === 'no_application') return;
+
+        if (confirm('هل أنت متأكد من تحديث حالة الطلب؟')) {
+            router.put(`/admin/students/${studentId}/application-status`, {
+                status: newStatus
+            }, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // التحديث سيحدث تلقائياً بسبب Inertia
+                }
+            });
+        }
+    };
+
     return (
         <AppLayout>
             <Head title="إدارة الطلاب" />
@@ -280,7 +296,7 @@ export default function Students({ students, universities, flash, user }) {
                                 <thead>
                                     <tr className="bg-blue-50 border-b-2 border-gray-300">
                                         <th className="border-l border-gray-300 px-4 py-3 text-right text-sm font-bold text-gray-800 w-16">الرقم</th>
-                                        <th className="border-l border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-800 w-20">الحالة</th>
+                                        <th className="border-l border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-800 w-24">حالة الطلب</th>
                                         <th className="border-l border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-800 w-20">الصورة</th>
                                         <th className="border-l border-gray-300 px-4 py-3 text-right text-sm font-bold text-gray-800">الاسم الكامل</th>
                                         <th className="border-l border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-800">الرقم الجامعي</th>
@@ -306,18 +322,29 @@ export default function Students({ students, universities, flash, user }) {
                                         </tr>
                                     ) : (
                                         filteredStudents.map((student, index) => {
-                                            const paymentPercentage = student.installment_total > 0
-                                                ? Math.round((student.installment_received / student.installment_total) * 100)
-                                                : 0;
+                                            // حالة الطلب
+                                            let applicationStatusColor = 'text-gray-600';
+                                            let applicationStatusText = 'لا يوجد طلب';
 
-                                            let statusColor = 'text-red-600';
-                                            let statusText = 'معلق';
-                                            if (paymentPercentage >= 100) {
-                                                statusColor = 'text-green-600';
-                                                statusText = 'مكتمل';
-                                            } else if (paymentPercentage >= 50) {
-                                                statusColor = 'text-yellow-600';
-                                                statusText = 'جزئي';
+                                            if (student.application) {
+                                                switch (student.application.status) {
+                                                    case 'pending':
+                                                        applicationStatusColor = 'text-yellow-600';
+                                                        applicationStatusText = 'معلق';
+                                                        break;
+                                                    case 'approved':
+                                                        applicationStatusColor = 'text-blue-600';
+                                                        applicationStatusText = 'مقبول';
+                                                        break;
+                                                    case 'accepted':
+                                                        applicationStatusColor = 'text-green-600';
+                                                        applicationStatusText = 'قبول نهائي';
+                                                        break;
+                                                    case 'rejected':
+                                                        applicationStatusColor = 'text-red-600';
+                                                        applicationStatusText = 'مرفوض';
+                                                        break;
+                                                }
                                             }
 
                                             return (
@@ -326,9 +353,18 @@ export default function Students({ students, universities, flash, user }) {
                                                         {index + 1}
                                                     </td>
                                                     <td className="border-l border-gray-300 px-4 py-3 text-sm text-center">
-                                                        <span className={`${statusColor} font-medium px-2 py-1 bg-gray-50 text-xs`}>
-                                                            {statusText}
-                                                        </span>
+                                                        <select
+                                                            value={student.application?.status || 'no_application'}
+                                                            onChange={(e) => handleStatusChange(student.id, e.target.value)}
+                                                            className={`${applicationStatusColor} font-medium px-2 py-1 text-xs border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                                                            disabled={user.role !== 'admin' && user.role !== 'supervisor'}
+                                                        >
+                                                            <option value="no_application" disabled className="text-gray-500">لا يوجد طلب</option>
+                                                            <option value="pending" className="text-yellow-600">معلق</option>
+                                                            <option value="approved" className="text-blue-600">مقبول</option>
+                                                            <option value="accepted" className="text-green-600">قبول نهائي</option>
+                                                            <option value="rejected" className="text-red-600">مرفوض</option>
+                                                        </select>
                                                     </td>
                                                     <td className="border-l border-gray-300 px-4 py-3 text-center">
                                                         {student.profile_image ? (

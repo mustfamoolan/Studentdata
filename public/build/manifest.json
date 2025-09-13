@@ -1,20 +1,20 @@
 {
-  "_AppLayout-D4C99a_h.js": {
-    "file": "assets/AppLayout-D4C99a_h.js",
+  "_AppLayout-C1suu7v4.js": {
+    "file": "assets/AppLayout-C1suu7v4.js",
     "name": "AppLayout",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
-  "_index-UeNNKb5Q.js": {
-    "file": "assets/index-UeNNKb5Q.js",
+  "_index-BqPU6EyA.js": {
+    "file": "assets/index-BqPU6EyA.js",
     "name": "index",
     "imports": [
       "resources/js/app.jsx"
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-CbWfDbP8.css",
+    "file": "assets/app-Cmp-EVQL.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -22,164 +22,164 @@
     ]
   },
   "resources/js/Pages/Admin/Dashboard.jsx": {
-    "file": "assets/Dashboard-DtLz1Q06.js",
+    "file": "assets/Dashboard-mlojzj3V.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Admin/Dashboard.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Auth/Login.jsx": {
-    "file": "assets/Login-DW2Odi3H.js",
+    "file": "assets/Login-Z8KFEgQH.js",
     "name": "Login",
     "src": "resources/js/Pages/Auth/Login.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_index-UeNNKb5Q.js"
+      "_index-BqPU6EyA.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Dashboard.jsx": {
-    "file": "assets/Dashboard-Br_KPeBg.js",
+    "file": "assets/Dashboard-C224qPbJ.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js",
-      "_index-UeNNKb5Q.js"
+      "_AppLayout-C1suu7v4.js",
+      "_index-BqPU6EyA.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Employee/Dashboard.jsx": {
-    "file": "assets/Dashboard-DRXUO4VM.js",
+    "file": "assets/Dashboard-D_jYQKZq.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Employee/Dashboard.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Errors/UnauthorizedAccess.jsx": {
-    "file": "assets/UnauthorizedAccess-CK1nzWHR.js",
+    "file": "assets/UnauthorizedAccess-7xpoCRtI.js",
     "name": "UnauthorizedAccess",
     "src": "resources/js/Pages/Errors/UnauthorizedAccess.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Pages/Acceptances.jsx": {
-    "file": "assets/Acceptances-6uuw1YPT.js",
+    "file": "assets/Acceptances-Dn3gKRMu.js",
     "name": "Acceptances",
     "src": "resources/js/Pages/Pages/Acceptances.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Pages/Employees.jsx": {
-    "file": "assets/Employees-DUAkKqXA.js",
+    "file": "assets/Employees-DFwkkcMr.js",
     "name": "Employees",
     "src": "resources/js/Pages/Pages/Employees.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Pages/Orders.jsx": {
-    "file": "assets/Orders-B4bXvGQs.js",
+    "file": "assets/Orders-DGcJGijN.js",
     "name": "Orders",
     "src": "resources/js/Pages/Pages/Orders.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Pages/Statistics.jsx": {
-    "file": "assets/Statistics-C_5BEQ2w.js",
+    "file": "assets/Statistics-C2Z1eaq1.js",
     "name": "Statistics",
     "src": "resources/js/Pages/Pages/Statistics.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Pages/StudentProfile.jsx": {
-    "file": "assets/StudentProfile-DhF26COp.js",
+    "file": "assets/StudentProfile-p8CGusFz.js",
     "name": "StudentProfile",
     "src": "resources/js/Pages/Pages/StudentProfile.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Pages/Students.jsx": {
-    "file": "assets/Students-DjZUahh3.js",
+    "file": "assets/Students-BbBoG7ym.js",
     "name": "Students",
     "src": "resources/js/Pages/Pages/Students.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Pages/Universities.jsx": {
-    "file": "assets/Universities-BA37Uj90.js",
+    "file": "assets/Universities-BxWLVln4.js",
     "name": "Universities",
     "src": "resources/js/Pages/Pages/Universities.jsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.jsx",
-      "_AppLayout-D4C99a_h.js"
+      "_AppLayout-C1suu7v4.js"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Public/AdmissionsCheck.jsx": {
-    "file": "assets/AdmissionsCheck-BTzEIGlx.js",
+    "file": "assets/AdmissionsCheck-BZlYcfMd.js",
     "name": "AdmissionsCheck",
     "src": "resources/js/Pages/Public/AdmissionsCheck.jsx",
     "isDynamicEntry": true,
@@ -187,11 +187,11 @@
       "resources/js/app.jsx"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Public/ApplicationForm.jsx": {
-    "file": "assets/ApplicationForm-BKbH5eb7.js",
+    "file": "assets/ApplicationForm-B2I3f8YT.js",
     "name": "ApplicationForm",
     "src": "resources/js/Pages/Public/ApplicationForm.jsx",
     "isDynamicEntry": true,
@@ -199,11 +199,11 @@
       "resources/js/app.jsx"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Public/ApplicationSuccess.jsx": {
-    "file": "assets/ApplicationSuccess-CsU8eofF.js",
+    "file": "assets/ApplicationSuccess-DcYiM3jj.js",
     "name": "ApplicationSuccess",
     "src": "resources/js/Pages/Public/ApplicationSuccess.jsx",
     "isDynamicEntry": true,
@@ -211,11 +211,11 @@
       "resources/js/app.jsx"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Public/Welcome.jsx": {
-    "file": "assets/Welcome-B4xjZITh.js",
+    "file": "assets/Welcome-CXST3Sxu.js",
     "name": "Welcome",
     "src": "resources/js/Pages/Public/Welcome.jsx",
     "isDynamicEntry": true,
@@ -223,11 +223,11 @@
       "resources/js/app.jsx"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/Pages/Welcome.jsx": {
-    "file": "assets/Welcome-kQCgpsJ4.js",
+    "file": "assets/Welcome-8v8MmmVZ.js",
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.jsx",
     "isDynamicEntry": true,
@@ -235,11 +235,11 @@
       "resources/js/app.jsx"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-5dOJYbrA.js",
+    "file": "assets/app-BRopmjLt.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -263,7 +263,7 @@
       "resources/js/Pages/Welcome.jsx"
     ],
     "css": [
-      "assets/app-CbWfDbP8.css"
+      "assets/app-Cmp-EVQL.css"
     ]
   }
 }
