@@ -48,8 +48,8 @@ export default function Acceptances({ applications = [], flash, user }) {
 
         const labels = {
             pending: 'معلق',
-            approved: 'معتمد',
-            accepted: 'مقبول نهائياً',
+            approved: 'انتظار',
+            accepted: 'انتظار نهائي',
             rejected: 'مرفوض'
         };
 
@@ -155,7 +155,7 @@ export default function Acceptances({ applications = [], flash, user }) {
                                                     {application.status === 'accepted' && (
                                                         <div className="flex gap-2">
                                                             <span className="px-3 py-1 bg-green-100 text-green-800 text-sm border border-green-300">
-                                                                ✅ مقبول نهائياً
+                                                                ✅ انتظار نهائي
                                                             </span>
                                                             {application.acceptance_file && (
                                                                 <a
@@ -242,7 +242,7 @@ export default function Acceptances({ applications = [], flash, user }) {
                                     </p>
                                     <ul className="text-green-700 text-xs mt-2 space-y-1">
                                         <li>• سيتم إضافة الطالب إلى قاعدة بيانات الطلاب</li>
-                                        <li>• سيتمكن الطالب من الاستعلام ورؤية حالة "مقبول نهائياً"</li>
+                                        <li>• سيتمكن الطالب من الاستعلام ورؤية حالة "انتظار نهائي"</li>
                                         <li>• سيتمكن من تحميل ملف القبول</li>
                                         <li>• لا يمكن التراجع عن هذا الإجراء</li>
                                     </ul>

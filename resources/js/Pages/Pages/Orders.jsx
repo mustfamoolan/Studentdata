@@ -200,7 +200,7 @@ export default function Orders({ applications = [], flash, user }) {
 
         const texts = {
             pending: 'معلق',
-            approved: 'مقبول',
+            approved: 'انتظار',
             rejected: 'مرفوض'
         };
 

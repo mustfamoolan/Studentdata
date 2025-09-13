@@ -332,11 +332,11 @@ export default function Students({ students, universities, flash, user }) {
                                                         break;
                                                     case 'approved':
                                                         applicationStatusColor = 'text-blue-600';
-                                                        applicationStatusText = 'مقبول';
+                                                        applicationStatusText = 'انتظار';
                                                         break;
                                                     case 'accepted':
                                                         applicationStatusColor = 'text-green-600';
-                                                        applicationStatusText = 'قبول نهائي';
+                                                        applicationStatusText = 'انتظار نهائي';
                                                         break;
                                                     case 'rejected':
                                                         applicationStatusColor = 'text-red-600';
@@ -358,8 +358,8 @@ export default function Students({ students, universities, flash, user }) {
                                                             disabled={user.role !== 'admin' && user.role !== 'supervisor'}
                                                         >
                                                             <option value="pending" className="text-yellow-600">معلق</option>
-                                                            <option value="approved" className="text-blue-600">مقبول</option>
-                                                            <option value="accepted" className="text-green-600">قبول نهائي</option>
+                                                            <option value="approved" className="text-blue-600">انتظار</option>
+                                                            <option value="accepted" className="text-green-600">انتظار نهائي</option>
                                                             <option value="rejected" className="text-red-600">مرفوض</option>
                                                         </select>
                                                     </td>
