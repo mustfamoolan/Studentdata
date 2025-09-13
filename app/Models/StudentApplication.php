@@ -88,7 +88,7 @@ class StudentApplication extends Model
         return match($this->status) {
             'pending' => 'معلق',
             'approved' => 'انتظار',
-            'accepted' => 'انتظار نهائي',
+            'accepted' => 'قبول نهائي',
             'rejected' => 'مرفوض',
             default => 'غير محدد'
         };

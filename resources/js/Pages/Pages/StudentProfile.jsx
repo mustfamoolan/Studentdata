@@ -252,7 +252,7 @@ ${student.receiver_agent ? `🤝 **المعقب المستلم:** ${student.rece
                 break;
             case 'accepted':
                 applicationStatusColor = 'text-green-600';
-                applicationStatusText = 'انتظار نهائي';
+                applicationStatusText = 'قبول نهائي';
                 break;
             case 'rejected':
                 applicationStatusColor = 'text-red-600';
