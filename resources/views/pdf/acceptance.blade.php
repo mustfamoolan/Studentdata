@@ -222,6 +222,7 @@
     <div class="footer">
         <p>تم إنشاء هذا المستند تلقائياً من نظام إدارة القبولات</p>
         <p>تاريخ الإنشاء: {{ now()->format('Y-m-d H:i:s') }}</p>
+        <p style="font-size: 10px; color: #999;">تم التحديث: {{ now()->format('Y-m-d H:i:s') }} - نسخة محدثة</p>
     </div>
 </body>
 </html>
